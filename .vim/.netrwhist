@@ -1,0 +1,7 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_1='/home/david/django/templates/admin'
+let g:netrw_dirhist_2='/home/david/django/datajujitsu/djblog/requirements'
+let g:netrw_dirhist_3='/home/david/django/datajujitsu/djblog/site_media'
+let g:netrw_dirhist_4='/home/david/django/datajujitsu/blog'
+let g:netrw_dirhist_5='/home/david/.weechat'
