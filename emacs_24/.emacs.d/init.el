@@ -1,10 +1,11 @@
 (setq visible-bell t)
 ; Packages
 (add-to-list 'load-path "~/.emacs.d")
-(require 'package)
+
+(package-initialize)
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
+
 (when (not package-archive-contents)
   (package-refresh-contents))
 (require 'tree-mode)
@@ -54,7 +55,7 @@
 (global-set-key [C-delete] 'ibuffer)
 (global-set-key [C-kp-delete] 'ibuffer)
 (global-set-key [f1] 'magit-status)
-(global-set-key [f2] 'shell)
+(global-set-key [f2] 'term)
 (global-set-key [f8] 'undo)
 
 ; Save the buffers
@@ -79,8 +80,9 @@
 	((looking-at "\\s\)") (forward-char 1) (backward-list 1))
 	(t (self-insert-command (or arg 1)))))
 
-(require 'color-theme)
-(color-theme-subtle-hacker)
+
+(load-theme 'tsdh-dark t)
+
 
 (cua-mode 1)
 
@@ -91,7 +93,7 @@
 
 ; Shell
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-(setq shell-file-name "zsh")
+(setq shell-file-name "bash")
 
 ; Markdown mode
 (setq auto-mode-alist
