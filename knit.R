@@ -1,0 +1,78 @@
+#!/usr/bin/Rscript
+
+# Rscript to knit Rmd files appropriately for different formats
+# Shamelessly ripped off  https://github.com/ropensci/rfishbase/blob/master/inst/doc/rfishbase/Makefile
+# Associated with Carl Boettig's blog post: http://www.carlboettiger.info/2012/04/07/writing-reproducibly-in-the-open-with-knitr.html
+
+
+
+## ./knit [epub|github|html|pdf|docx] fname to generate different types of output
+
+library(knitr)
+
+## use markdown as the output format: R code in ```r and ``` 
+render_markdown()
+
+## Formatting for printed numbers
+knit_hooks$set(inline = function(x) {
+    if(is.numeric(x) && x > 0.001)
+        I(prettyNum(round(x,2), big.mark=","))
+    else
+        I(x)
+})
+
+## global chunk options: default uses high quality Cairo PNG device
+pdf.options(pointsize = 10)  # smaller pointsize for recording plots
+opts_chunk$set(cache=TRUE, fig.path='figure/', dev='Cairo_png',
+               fig.width=5, fig.height=5, cache.path = 'cache-local/', par=TRUE)
+
+## xtable html format for github/html output.  
+## otherwise this should be ignored (defaults to 'latex') for pdf output
+options(xtable.type = 'html')
+
+## Global options 
+opts_chunk$set(warning=FALSE, message=FALSE, comment=NA, tidy=FALSE, refresh=TRUE)
+
+## chunk hooks
+knit_hooks$set(par=function(before, options, envir){
+    if (before && options$fig.show!='none') 
+        par(mar=c(4,4,.1,.1), cex.lab=.95, cex.axis=.9, mgp=c(2,.7,0), tcl=-.3)
+})
+
+## verbose compile
+opts_knit$set(progress = TRUE, verbose = TRUE)
+
+local({
+    fmt = commandArgs(TRUE)[1]
+    fname <- commandArgs(TRUE)[2]
+    if (length(fmt) == 0L) fmt = 'github'
+    if (fmt %in% c('github', 'html')) {
+        # upload to flickr when output is for github or html
+        opts_knit$set(upload.fun = socialR::flickr.url)
+        opts_chunk$set(cache.path = 'cache-upload/')
+        
+    } else if (fmt == 'epub') {
+        
+    } else if (fmt %in% c('odt', 'docx', 'doc')) {
+        options(xtable.type = 'html')
+        # xtable shouldn't print comments 
+        options(xtable.print.comment=FALSE)
+        # Journal probably wants eps formatted graphics.  
+        opts_chunk$set(dev = 'postscript', fig.width=5, fig.height=5, 
+                       cache.path = 'cache-doc/')
+        # try splitting the tables out with special options?
+        options(knitr.include=TRUE)
+        options(knitr.split=TRUE)
+        # We'll want plots to be external only in the case of doc generation:
+        knit_hooks$set(plot = function(x, options) "") 
+        
+    } else if (fmt %in% c('tex','pdf')) {
+        options(xtable.print.comment=FALSE)
+        options(xtable.type = 'latex', table.placement="H")
+        opts_chunk$set(cache.path = 'cache-pdf/')
+        # use pdf graphics for PDF output
+        opts_chunk$set(dev = 'Cairo_pdf', fig.width=5, fig.height=5)
+    }
+    
+    knit(fname)
+})
