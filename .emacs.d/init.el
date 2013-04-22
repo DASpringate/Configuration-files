@@ -15,6 +15,7 @@
 (require 'desktop)
 (add-to-list 'desktop-globals-to-save 'windata-named-winconf)
 (autoload 'dirtree "dirtree" "Add directory to tree view")
+
 (require 'nrepl)
 (add-hook 'nrepl-interaction-mode-hook
   'nrepl-turn-on-eldoc-mode)
@@ -79,8 +80,33 @@
 	((looking-at "\\s\)") (forward-char 1) (backward-list 1))
 	(t (self-insert-command (or arg 1)))))
 
-(require 'color-theme)
-(color-theme-subtle-hacker)
+(defun faces_x ()
+;; these are used when in X
+  (require 'color-theme)
+  (color-theme-subtle-hacker))
+
+(defun faces_nox ()
+;; these are used when in terminal
+  (custom-set-faces
+   '(default ((t (:foreground "white" :background "black"))))
+   '(font-lock-comment-face ((t (:foreground "magenta"))))
+   '(font-lock-function-name-face ((t (:foreground "red"))))
+   '(font-lock-keyword-face ((t (:foreground "green"))))
+   '(font-lock-type-face ((t (:foreground "blue"))))
+   '(font-lock-string-face ((t (:foreground "cyan"))))
+   '(font-lock-variable-name-face ((t (:foreground "blue"))))
+   '(menu ((((type x-toolkit)) (:background "white" :foreground "black" :box (:line-width 2 :color "grey75" :style released-button)))))
+   '(modeline ((t (:foreground "blue" :background "white")))))
+  (set-cursor-color "blue")
+  (set-foreground-color "white")
+  (set-background-color "black")
+  (set-face-foreground 'default "white")
+  (set-face-background 'default "black"))
+
+(if window-system
+    (faces_x)
+  (faces_nox))
+
 
 (cua-mode 1)
 
@@ -101,6 +127,15 @@
 ; SCSS
 (add-to-list 'auto-mode-alist '("\\.scss$" . css-mode))
 
+; CL stuff
+;(load (expand-file-name "~/quicklisp/slime-helper.el"))
+(add-to-list 'load-path "/home/mdehsds4/github/slime/")
+(setq inferior-lisp-program "/home/mdehsds4/bin/sbcl")
+(require 'slime)
+(slime-setup '(slime-fancy))
+
+
+
 ; Clojure mode
 (require 'clojure-mode)
 
@@ -109,9 +144,9 @@
 (global-set-key (kbd "C-@") 'er/expand-region)
 
 ; Paredit
-(require 'paredit)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-(add-hook 'clojure-mode-hook    'enable-paredit-mode)
+;(require 'paredit)
+;(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+;(add-hook 'clojure-mode-hook    'enable-paredit-mode)
 (show-paren-mode 1)
 (setq show-paren-delay 0)
 ; Emacs server
