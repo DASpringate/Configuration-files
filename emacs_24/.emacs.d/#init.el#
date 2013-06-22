@@ -120,9 +120,9 @@
  
 (global-auto-complete-mode t)
 ; suggestions after 2 characters
-;(setq ac-auto-start 2)
+(setq ac-auto-start 2)
 ; case sensitivity is important when finding matches
-;(setq ac-ignore-case nil)
+(setq ac-ignore-case nil)
 
 (require 'js-comint)
 ;; Use node as our repl

@@ -1,10 +1,11 @@
 (setq visible-bell t)
 ; Packages
 (add-to-list 'load-path "~/.emacs.d")
-;(require 'package)
+
+(package-initialize)
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
+
 (when (not package-archive-contents)
   (package-refresh-contents))
 (require 'tree-mode)
@@ -21,6 +22,18 @@
 (setq nrepl-popup-stacktraces nil)
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+ 
+(defun require-package (p)
+  (unless (package-installed-p p)
+    (package-install p))
+  (require p))
+ 
+(require-package 'auto-complete)
+(require-package 'yasnippet)
+(require-package 'lintnode)
 (defvar my-packages '(clojure-mode
 		      nrepl
 		      expand-region
@@ -54,7 +67,7 @@
 (global-set-key [C-delete] 'ibuffer)
 (global-set-key [C-kp-delete] 'ibuffer)
 (global-set-key [f1] 'magit-status)
-(global-set-key [f2] 'shell)
+(global-set-key [f2] 'term)
 (global-set-key [f8] 'undo)
 
 ; Save the buffers
@@ -82,6 +95,48 @@
 
 (load-theme 'tsdh-dark t)
 
+;;yasnippet
+(yas-global-mode 1)
+ 
+;; auto-complete
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories 
+	     "~/.emacs.d/elpa/auto-complete-1.4/dict")
+ 
+(set-default 'ac-sources
+             '(ac-source-abbrev
+               ac-source-dictionary
+               ac-source-yasnippet
+               ac-source-words-in-buffer
+               ac-source-words-in-same-mode-buffers
+               ac-source-semantic))
+ 
+(ac-config-default)
+ 
+(dolist (m '(c-mode c++-mode java-mode clojurescript-mode 
+		    clojure-mode css-mode javascript-mode
+		    python-mode sh-mode scheme-mode))
+  (add-to-list 'ac-modes m))
+ 
+(global-auto-complete-mode t)
+; suggestions after 2 characters
+;(setq ac-auto-start 2)
+; case sensitivity is important when finding matches
+;(setq ac-ignore-case nil)
+
+(require 'js-comint)
+;; Use node as our repl
+(setq inferior-js-program-command "node")
+ 
+(setq inferior-js-mode-hook
+      (lambda ()
+        ;; We like nice colors
+        (ansi-color-for-comint-mode-on)
+        ;; Deal with some prompt nonsense
+        (add-to-list 'comint-preoutput-filter-functions
+                     (lambda (output)
+                       (replace-regexp-in-string ".*1G\.\.\..*5G" "..."
+                     (replace-regexp-in-string ".*1G.*3G" "&gt;" output))))
 
 (cua-mode 1)
 
@@ -92,7 +147,7 @@
 
 ; Shell
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-(setq shell-file-name "zsh")
+(setq shell-file-name "bash")
 
 ; Markdown mode
 (setq auto-mode-alist
